@@ -1,8 +1,12 @@
 import sys
 import configparser
 import cv2
+import numpy
 from PIL import Image, ImageTk
 import tkinter as tk
+
+Display_width = 1366
+Display_height = 768
 
 
 def apply_brightness_contrast(input_img, brightness=0, contrast=0):
@@ -122,7 +126,7 @@ if __name__ == '__main__':
     # window.window = tk.Tk()  # Makes main window
     window.config(background="#FFFFFF")
     # Graphics window
-    imageFrame = tk.Frame(window, width=1920, height=1080)
+    imageFrame = tk.Frame(window, width=Display_width, height=Display_height)
     imageFrame.grid(row=0, column=0, padx=0, pady=0)
     # Capture video frames
     lmain = tk.Label(imageFrame)
@@ -143,8 +147,11 @@ if __name__ == '__main__':
 
     def show_frame():
         _, frame = cap.read()
-        frame = apply_brightness_contrast(frame, SWC.adj_br, SWC.adj_cn)
-        cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        cap_img = Image.fromarray(frame)
+        cap_img.thumbnail(size=(Display_width, Display_height))
+        cap_img_arr = numpy.array(cap_img)
+        img_upgraded = apply_brightness_contrast(cap_img_arr, SWC.adj_br, SWC.adj_cn)
+        cv2image = cv2.cvtColor(img_upgraded, cv2.COLOR_BGR2RGBA)
         imgtk = ImageTk.PhotoImage(image=Image.fromarray(cv2image))
         lmain.imgtk = imgtk
         lmain.configure(image=imgtk)
